@@ -101,6 +101,30 @@ export function PatientForm({ patient, onClose }: PatientFormProps) {
             </div>
           </div>
 
+          {/* CIN Field */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              CIN (Carte d'Identité Nationale) *
+            </label>
+            <input
+              type="text"
+              name="cin"
+              value={formData.cin || ''}
+              onChange={(e) => {
+                const value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+                if (value.length <= 8) {
+                  handleChange({ target: { name: 'cin', value } } as any);
+                }
+              }}
+              required
+              placeholder="12345678"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono tracking-wider"
+              maxLength={8}
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Format: 8 chiffres (ex: 12345678)
+            </p>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">

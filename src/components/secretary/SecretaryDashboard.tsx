@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import { useAppContext } from '../../context/AppContext';
 import { PatientForm } from './PatientForm';
+import { CINSearchForm } from './CINSearchForm';
 import { QueueTable } from './QueueTable';
 import { NotificationCenter } from './NotificationCenter';
-import { UserPlus, Users, Clock, FileText } from 'lucide-react';
+import { UserPlus, Users, Clock, FileText, Search } from 'lucide-react';
+import { Patient } from '../../types';
 
 export function SecretaryDashboard() {
   const { state, dispatch } = useAppContext();
   const [showPatientForm, setShowPatientForm] = useState(false);
+  const [showCINSearch, setShowCINSearch] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState(null);
 
   const handleAddToQueue = (patientId: string) => {
@@ -30,18 +33,52 @@ export function SecretaryDashboard() {
   const waitingCount = state.queue.filter(q => q.status === 'waiting').length;
   const inConsultationCount = state.queue.filter(q => q.status === 'in_consultation').length;
 
+  const handlePatientFound = (patient: Patient) => {
+    // Convert API patient to local patient format if needed
+    const localPatient = {
+      ...patient,
+      firstName: patient.first_name,
+      lastName: patient.last_name,
+      dateOfBirth: patient.date_of_birth,
+      allergies: patient.allergies_list,
+      currentTreatments: patient.current_treatments_list,
+      lastConsultationReason: patient.last_consultation_reason,
+      createdAt: patient.created_at,
+      updatedAt: patient.updated_at
+    };
+    
+    // Add to local state if not already present
+    const existingPatient = state.patients.find(p => p.id === patient.id);
+    if (!existingPatient) {
+      dispatch({ type: 'ADD_PATIENT', payload: localPatient });
+    }
+  };
+
+  const handlePatientNotFound = () => {
+    // Could show a message or open the new patient form
+    console.log('Patient not found');
+  };
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-900">Gestion de la File d'Attente</h1>
-        <button
-          onClick={() => setShowPatientForm(true)}
-          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
-        >
-          <UserPlus className="h-4 w-4 mr-2" />
-          Nouveau patient
-        </button>
+        <div className="flex space-x-3">
+          <button
+            onClick={() => setShowCINSearch(!showCINSearch)}
+            className="inline-flex items-center px-4 py-2 border border-blue-600 text-sm font-medium rounded-md text-blue-600 bg-white hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+          >
+            <Search className="h-4 w-4 mr-2" />
+            Recherche CIN
+          </button>
+          <button
+            onClick={() => setShowPatientForm(true)}
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+          >
+            <UserPlus className="h-4 w-4 mr-2" />
+            Nouveau patient
+          </button>
+        </div>
       </div>
 
       {/* Stats */}
@@ -86,6 +123,14 @@ export function SecretaryDashboard() {
           </div>
         </div>
       </div>
+
+      {/* CIN Search Form */}
+      {showCINSearch && (
+        <CINSearchForm
+          onPatientFound={handlePatientFound}
+          onPatientNotFound={handlePatientNotFound}
+        />
+      )}
 
       {/* Notifications */}
       <NotificationCenter />

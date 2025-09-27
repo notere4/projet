@@ -2,6 +2,7 @@ export interface Patient {
   id: string;
   firstName: string;
   lastName: string;
+  cin: string; // Carte d'Identité Nationale
   dateOfBirth: string;
   phone: string;
   email?: string;
@@ -11,6 +12,17 @@ export interface Patient {
   lastConsultationReason?: string;
   createdAt: string;
   updatedAt: string;
+  // API response fields
+  first_name?: string;
+  last_name?: string;
+  full_name?: string;
+  date_of_birth?: string;
+  age?: number;
+  allergies_list?: string[];
+  current_treatments_list?: string[];
+  last_consultation_reason?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface Doctor {
